@@ -196,9 +196,14 @@ read_directory_entries(int fd, int directory_block_size)
 			total_bytes += name_length_check;
 			struct ext2_inode inodetable;
 			int inode_temp;
-			if(strcmp(dir_parts[j],directory_entry.name)==0)
+			// printf("dir_parts  :%s\n", dir_parts[j]);
+			// printf("Directory name : %s\n", directory_entry.name);
+			memcpy(file_name, directory_entry.name, directory_entry.name_len);
+			file_name[directory_entry.name_len] = 0;
+			// printf("file name : %s\n", file_name );
+			if(strcmp(dir_parts[j],file_name)==0)
 			{	
-				
+				//printf("inside\n");
 				directory_block_size = calc_inode_offset(directory_entry.inode);
 				inode_temp = directory_entry.inode;
 				//printf("inode_temp : %d\n", inode_temp );
@@ -215,31 +220,20 @@ read_directory_entries(int fd, int directory_block_size)
 				{
 					reg_file_flag = 3;	
 					file_inode = inode_temp;	 
-					//printf("file_inode out:%d\n", file_inode);		
+					// printf("file_inode out:%d\n", file_inode);		
 				}
 			}
 			
 			if ((block_size - size) == directory_entry.rec_len)
 			{
-				if ( (inodetable.i_mode & S_IFMT) == S_IFDIR)
-				{
-					directory_block_size = block_size*inodetable.i_block[0];
-					directory_inode = inode_temp;
-					//printf("directory_inode ins : %d\n", directory_inode);
-				}
-				else
-				{
-					reg_file_flag = 3;
-					file_inode = directory_entry.inode;
-					// printf("file_inode ins :%d\n", file_inode);	
-				}
 				break;
 			}
-			else if(strcmp(dir_parts[j],directory_entry.name)==0)
+			else if(strcmp(dir_parts[j],file_name)==0)
 				{
 					i--;
 				 	j++;
-				 	break;				 	
+				 	break;	
+
 				}
 				else if (total_bytes != directory_entry.rec_len)
 					{
@@ -252,7 +246,7 @@ read_directory_entries(int fd, int directory_block_size)
 						directory_block_size += directory_entry.rec_len;
 					}
 					lseek(fd, directory_block_size, SEEK_SET);
-			read(fd, &directory_entry, sizeof(directory_entry));
+					read(fd, &directory_entry, sizeof(directory_entry));
 		}	
 		
 	}

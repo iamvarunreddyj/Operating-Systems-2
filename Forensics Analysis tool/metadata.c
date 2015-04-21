@@ -222,20 +222,15 @@ read_directory_entries(int fd, int directory_block_size)
 					file_inode = inode_temp;	 
 					// printf("file_inode out:%d\n", file_inode);		
 				}
+				i--;
+				j++;
+				break;	
 			}
 			
 			if ((block_size - size) == directory_entry.rec_len)
 			{
 				break;
-			}
-			else if(strcmp(dir_parts[j],file_name)==0)
-				{
-					i--;
-				 	j++;
-				 	break;	
-
-				}
-				else if (total_bytes != directory_entry.rec_len)
+			}else if (total_bytes != directory_entry.rec_len)
 					{
 						size += total_bytes ;
 						directory_block_size += total_bytes;
